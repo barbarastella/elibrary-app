@@ -12,7 +12,7 @@ import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/pages/login_page.dart';
 
-import './features/books/book_repository.dart';
+import './features/books/data/book_repository.dart';
 import './features/books/bloc/book_bloc.dart';
 
 void main() async {
