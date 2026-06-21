@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'bookstatus_enum.dart';
+import 'book_status_enum.dart';
 
 class BookModel {
   final String? id;
   final String isbn;
   final String title;
   final String author;
+  final String? genre;
   final int pageCount;
   final String? coverUrl;
   final BookStatus status;
@@ -19,6 +20,7 @@ class BookModel {
     required this.isbn,
     required this.title,
     required this.author,
+    this.genre,
     required this.pageCount,
     this.coverUrl,
     required this.status,
@@ -33,6 +35,7 @@ class BookModel {
     String? isbn,
     String? title,
     String? author,
+    String? genre,
     int? pageCount,
     String? coverUrl,
     BookStatus? status,
@@ -46,27 +49,29 @@ class BookModel {
       isbn: isbn ?? this.isbn,
       title: title ?? this.title,
       author: author ?? this.author,
+      genre: genre ?? this.genre,
       pageCount: pageCount ?? this.pageCount,
       coverUrl: coverUrl ?? this.coverUrl,
       status: status ?? this.status,
       addedViaScanner: addedViaScanner ?? this.addedViaScanner,
       geminiSummary: geminiSummary ?? this.geminiSummary,
       geminiRecommendations:
-          geminiRecommendations ?? this.geminiRecommendations,
+      geminiRecommendations ?? this.geminiRecommendations,
       addedAt: addedAt ?? this.addedAt,
     );
   }
 
   factory BookModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic> ?? {};
+    final data = doc.data() as Map<String, dynamic>? ?? {};
 
     return BookModel(
       id: doc.id,
       isbn: data['isbn'] ?? '',
       title: data['title'] ?? '',
       author: data['author'] ?? '',
+      genre: data['genre'],
       pageCount: (data['pageCount'] as num?)?.toInt() ?? 0,
-      coverUrl: data['coverURL'] ?? '',
+      coverUrl: data['coverUrl'] ?? '',
       status: BookStatus.fromString(data['status'] ?? ''),
       addedViaScanner: data['addedViaScanner'] ?? false,
       geminiSummary: data['geminiSummary'],
@@ -82,6 +87,7 @@ class BookModel {
       'isbn': isbn,
       'title': title,
       'author': author,
+      'genre': genre,
       'pageCount': pageCount,
       'coverUrl': coverUrl,
       'status': status.toShortString(),
