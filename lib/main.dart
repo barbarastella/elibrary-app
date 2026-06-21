@@ -1,3 +1,4 @@
+import 'package:elibrary/features/auth/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,7 @@ import 'features/auth/pages/login_page.dart';
 
 import './features/books/data/book_repository.dart';
 import './features/books/bloc/book_bloc.dart';
+import './features/menu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,8 +60,28 @@ class ElibraryApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const LoginPage(),
+        home: const _AppGatekeeper(),
       ),
+    );
+  }
+}
+
+class _AppGatekeeper extends StatelessWidget {
+  const _AppGatekeeper();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthenticatedState)
+          return Menu(userId: state.user.uid);
+        else if (state is UnauthenticatedState || state is AuthFailureState)
+          return const LoginPage();
+
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator(color: Colors.black)),
+        );
+      },
     );
   }
 }
