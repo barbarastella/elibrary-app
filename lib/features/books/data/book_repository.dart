@@ -17,9 +17,14 @@ class BookRepository {
     required BookModel book,
   }) async {
     try {
-      await _userBooksCollection(userId).add(book.toFirestore());
+      final docRef = _userBooksCollection(userId).doc(book.isbn);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) throw 'Um livro com este ISBN já está na sua estante.';
+
+      await docRef.set(book.toFirestore());
     } catch (e) {
-      throw Exception('Erro ao adicionar livro: $e');
+      throw Exception(e.toString().replaceAll('Erro ao adicionar livro: ', ''));
     }
   }
 

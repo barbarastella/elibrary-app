@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../data/book_model.dart';
+import '../pages/book_form_page.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -68,11 +69,11 @@ class _HomePageState extends State<HomePage> {
 
                   GestureDetector(
                     onTap: () {
-                      // página de criar
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => const BookFormPage()));
                     },
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                       decoration: BoxDecoration(
                         color: focalColor,
                         border: Border.all(color: Colors.black, width: 3),
