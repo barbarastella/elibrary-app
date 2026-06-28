@@ -165,7 +165,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
                 color: Colors.white,
                 border: Border.all(color: Colors.black, width: 3),
                 boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                  BoxShadow(color: Colors.black, offset: Offset(3, 3)),
                 ],
               ),
               child: Row(

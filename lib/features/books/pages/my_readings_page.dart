@@ -17,28 +17,73 @@ class MyReadingsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: surfaceColor,
-      appBar: AppBar(backgroundColor: accentColor, title: Text("MINHAS LEITURAS", style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900, color: Colors.black)),
-      bottom: PreferredSize(preferredSize: const Size.fromHeight(3.0), child: Container(color: Colors.black, height: 3.0)),
+      appBar: AppBar(
+        backgroundColor: accentColor,
+        title: Text(
+          "MINHAS LEITURAS",
+          style: GoogleFonts.spaceGrotesk(
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(3.0),
+          child: Container(color: Colors.black, height: 3.0),
+        ),
       ),
       body: BlocBuilder<BookBloc, BookState>(
         builder: (context, state) {
           if (state is BooksLoaded) {
-            return ListView(padding: const EdgeInsets.all(16),
-            children: [
-              _buildSection(context, 'Lendo', state.books.where((b) => b.status == BookStatus.reading).toList(), accentColor),
-              _buildSection(context, 'Quero Ler', state.books.where((b) => b.status == BookStatus.toRead).toList(), accentColor),
-              _buildSection(context, 'Lidos', state.books.where((b) => b.status == BookStatus.read).toList(), accentColor),
-              _buildSection(context, 'Abandonados', state.books.where((b) => b.status == BookStatus.abandoned).toList(), accentColor),
-            ],
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildSection(
+                  context,
+                  'Lendo',
+                  state.books
+                      .where((b) => b.status == BookStatus.reading)
+                      .toList(),
+                  accentColor,
+                ),
+                _buildSection(
+                  context,
+                  'Quero Ler',
+                  state.books
+                      .where((b) => b.status == BookStatus.toRead)
+                      .toList(),
+                  accentColor,
+                ),
+                _buildSection(
+                  context,
+                  'Lidos',
+                  state.books
+                      .where((b) => b.status == BookStatus.read)
+                      .toList(),
+                  accentColor,
+                ),
+                _buildSection(
+                  context,
+                  'Abandonados',
+                  state.books
+                      .where((b) => b.status == BookStatus.abandoned)
+                      .toList(),
+                  accentColor,
+                ),
+              ],
             );
           }
           return const Center(child: CircularProgressIndicator());
-        }
+        },
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<BookModel> books, Color accentColor) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    List<BookModel> books,
+    Color accentColor,
+  ) {
     if (books.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,8 +97,12 @@ class MyReadingsPage extends StatelessWidget {
               border: Border.all(color: Colors.black, width: 2),
             ),
             child: Text(
-                title.toUpperCase(),
-                style: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.black)
+              title.toUpperCase(),
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+              ),
             ),
           ),
         ),
@@ -62,20 +111,50 @@ class MyReadingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBookTile(BuildContext context, BookModel book, Color accentColor) {
+  Widget _buildBookTile(
+    BuildContext context,
+    BookModel book,
+    Color accentColor,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 2)
+        color: Colors.white,
+        border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(3, 3))],
       ),
       child: ListTile(
-        title: Text(book.title, style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        leading: Container(
+          width: 45,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            border: Border.all(color: Colors.black, width: 1.5),
+          ),
+          child: (book.coverUrl ?? '').isNotEmpty
+              ? Image.network(
+                  book.coverUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.book, size: 20),
+                ) : const Icon(Icons.book, size: 20),
+        ),
+        title: Text(
+          book.title,
+          style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
+        ),
         subtitle: Text(book.author),
-        trailing: Icon(Icons.arrow_forward_ios_rounded, size: 20, color: accentColor, weight: 900),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookDetailsPage(book: book))),
+        trailing: Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 20,
+          color: accentColor,
+          weight: 900,
+        ),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => BookDetailsPage(book: book)),
+        ),
       ),
     );
   }
-
 }

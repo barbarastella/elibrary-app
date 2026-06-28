@@ -112,7 +112,7 @@ class BookDetailsPage extends StatelessWidget {
                         color: Colors.white,
                         border: Border.all(color: Colors.black, width: 3),
                         boxShadow: const [
-                          BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                          BoxShadow(color: Colors.black, offset: Offset(3, 3)),
                         ],
                       ),
                       child: (currentBook.coverUrl ?? '').isNotEmpty
@@ -202,7 +202,7 @@ class BookDetailsPage extends StatelessWidget {
                 const SizedBox(height: 40),
 
                 Text(
-                  'INSIGHTS DO GEMINI',
+                  'RESUMO & RECOMENDAÇÕES',
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -252,7 +252,7 @@ class BookDetailsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.black, width: 3),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(3, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +265,7 @@ class BookDetailsPage extends StatelessWidget {
               border: Border.all(color: Colors.black, width: 2),
               boxShadow: const [
                 BoxShadow(color: Colors.black, offset: Offset(2, 2)),
-              ], // Separação rígida
+              ],
             ),
             child: Row(
               children: [
@@ -310,7 +310,7 @@ class BookDetailsPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: accentColor,
         border: Border.all(color: Colors.black, width: 3),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(3, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,7 +442,7 @@ class BookDetailsPage extends StatelessWidget {
           const Icon(Icons.smart_toy_outlined, size: 48, color: Colors.black54),
           const SizedBox(height: 12),
           Text(
-            'Gere a sinopse do livro e recomendações de temática semelhante!',
+            'Gere um breve resumo do livro e\nrecomendações de temática semelhante!',
             textAlign: TextAlign.center,
             style: GoogleFonts.spaceGrotesk(
               fontWeight: FontWeight.bold,
@@ -473,7 +473,7 @@ class BookDetailsPage extends StatelessWidget {
                 boxShadow: isLoading
                     ? null
                     : const [
-                        BoxShadow(color: Colors.black, offset: Offset(4, 4)),
+                        BoxShadow(color: Colors.black, offset: Offset(3, 3)),
                       ],
               ),
               child: isLoading

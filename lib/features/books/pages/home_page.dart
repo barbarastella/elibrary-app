@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -40,10 +41,10 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (context) => const BarcodeScannerPage()),
     );
 
-    if (scannedIsbn != null && scannedIsbn.isNotEmpty) {
-      if (mounted) {
-        context.read<BookBloc>().add(FetchBookFromScannerEvent(isbn: scannedIsbn));
-      }
+    if (scannedIsbn != null && scannedIsbn.isNotEmpty && mounted) {
+      context.read<BookBloc>().add(
+        FetchBookFromScannerEvent(isbn: scannedIsbn),
+      );
     }
   }
 
@@ -63,48 +64,46 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.zero,
         side: BorderSide(color: Colors.black, width: 3),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'ADICIONAR LIVRO',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'ADICIONAR LIVRO',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
                 ),
-                const SizedBox(height: 24),
-                _buildOptionButton(
-                  icon: Icons.qr_code_scanner,
-                  label: 'ESCANEAR CÓDIGO DE BARRAS',
-                  color: const Color(0xFF00E5FF),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _startScannerFlow();
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildOptionButton(
-                  icon: Icons.edit_note,
-                  label: 'PREENCHER MANUALMENTE',
-                  color: const Color(0xFFFFE800),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _navigateToForm(null);
-                  },
-                ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              _buildOptionButton(
+                icon: Icons.qr_code_scanner,
+                label: 'ESCANEAR CÓDIGO DE BARRAS',
+                color: const Color(0xFFFFE800),
+                onTap: () {
+                  Navigator.pop(context);
+                  _startScannerFlow();
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildOptionButton(
+                icon: Icons.edit_note,
+                label: 'PREENCHER MANUALMENTE',
+                color: const Color(0xFFFFE800),
+                onTap: () {
+                  Navigator.pop(context);
+                  _navigateToForm(null);
+                },
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -121,7 +120,9 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: color,
           border: Border.all(color: Colors.black, width: 3),
-          boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(4, 4))],
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(3, 3)),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -146,174 +147,166 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     const Color accentColor = Color(0xFFFFE800);
     const Color surfaceColor = Color(0xFFF4F4F0);
-    final double bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Scaffold(
-      backgroundColor: surfaceColor,
-      body: SafeArea(
-        child: BlocConsumer<BookBloc, BookState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(statusBarColor: accentColor),
+      child: Scaffold(
+        backgroundColor: surfaceColor,
+        body: BlocConsumer<BookBloc, BookState>(
           listener: (context, state) {
             if (state is BookScannerSuccess) {
               _navigateToForm(state.scannedBook);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Livro encontrado! Confirme os dados e salve.', style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold, color: Colors.white)),
-                  backgroundColor: Colors.green[800],
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                ),
-              );
             } else if (state is BookScannerNotFound) {
-              _navigateToForm(BookModel(
-                isbn: state.isbn, title: '', author: '', pageCount: 0, status: BookStatus.toRead, addedViaScanner: true,
-              ));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Livro não encontrado. Preencha manualmente.', style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold, color: Colors.white)),
-                  backgroundColor: Colors.red[800],
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              _navigateToForm(
+                BookModel(
+                  isbn: state.isbn,
+                  title: '',
+                  author: '',
+                  pageCount: 0,
+                  status: BookStatus.toRead,
+                  addedViaScanner: true,
                 ),
-              );
-            } else if (state is BookScannerError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
               );
             }
           },
           builder: (context, state) {
             if (state is BooksInitial || state is BooksLoading) {
-              return const Center(child: CircularProgressIndicator(color: Colors.black));
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.black),
+              );
             }
 
             if (state is BooksError) {
-              return Center(child: Text('Erro ao carregar dados: ${state.message}'));
+              return Center(child: Text('Erro: ${state.message}'));
             }
 
             if (state is BooksLoaded) {
               final bool isProcessingScanner = state is BookScannerProcessing;
 
-              final List<BookModel> allBooks = state.books.where((book) {
-                final searchLower = _searchQuery.toLowerCase();
-                return book.title.toLowerCase().contains(searchLower) ||
-                    book.author.toLowerCase().contains(searchLower) ||
-                    book.isbn.contains(searchLower);
-              }).toList();
+              String normalize(String? text) => (text ?? '').toLowerCase();
 
-              final List<BookModel> mysteryBooks = allBooks.where((book) {
-                final genre = (book.genre ?? '').toLowerCase();
-                return genre.contains('investigação') || genre.contains('policial');
-              }).toList();
+              final List<BookModel> filteredBooks = state.books
+                  .where(
+                    (b) =>
+                        normalize(b.title).contains(normalize(_searchQuery)) ||
+                        normalize(b.author).contains(normalize(_searchQuery)),
+                  )
+                  .toList();
 
-              final List<BookModel> classicBooks = allBooks.where((book) {
-                final genre = (book.genre ?? '').toLowerCase();
-                final isClassic = genre.contains('clássico');
-                final isMystery = genre.contains('investigação') || genre.contains('policial');
-                return isClassic && !isMystery;
+              final List<BookModel> mystery = filteredBooks
+                  .where(
+                    (b) =>
+                        normalize(b.genre).contains('investigação') ||
+                        normalize(b.genre).contains('policial'),
+                  )
+                  .toList();
+
+              final List<BookModel> classics = filteredBooks.where((b) {
+                final genre = normalize(b.genre);
+                return genre.contains('clássico') &&
+                    !(genre.contains('investigação') ||
+                        genre.contains('policial'));
               }).toList();
 
               return Stack(
                 children: [
                   SingleChildScrollView(
-                    padding: EdgeInsets.only(left: 24.0, right: 24.0, top: 24.0, bottom: bottomPadding + 40.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'eLibrary',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -2,
-                            color: Colors.black,
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + 40,
+                            bottom: 40,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Descubra, catalogue e analise.\nSua estante literária com o poder\nda inteligência artificial.',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            height: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        /*TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() { _searchQuery = value; });
-                          },
-                          style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            hintText: 'Pesquisar por título, autor ou ISBN...',
-                            hintStyle: GoogleFonts.spaceGrotesk(color: Colors.black54),
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: const Icon(Icons.search, color: Colors.black),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.black),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() { _searchQuery = ''; });
-                              },
-                            )
-                                : null,
-                            enabledBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black, width: 3),
-                              borderRadius: BorderRadius.zero,
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black, width: 4),
-                              borderRadius: BorderRadius.zero,
+                          decoration: BoxDecoration(
+                            color: accentColor,
+                            border: const Border(
+                              bottom: BorderSide(color: Colors.black, width: 3),
                             ),
                           ),
+                          child: Column(
+                            children: [
+                              Icon(Icons.menu_book_rounded, size: 50),
+                              Text(
+                                'eLibrary',
+                                style: GoogleFonts.spaceGrotesk(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.black,
+                                  letterSpacing: -2,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Estante literária virtual com\nintegração de Inteligência Artificial.',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.spaceGrotesk(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 24),*/
-
-                        GestureDetector(
-                          onTap: _showAddBookOptions,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: accentColor,
-                              border: Border.all(color: Colors.black, width: 3),
-                              boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6))],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.document_scanner_rounded, size: 32, color: Colors.black),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'ADICIONAR LIVRO',
-                                  style: GoogleFonts.spaceGrotesk(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1,
-                                    color: Colors.black,
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: _showAddBookOptions,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: accentColor,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 3,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(3, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.add_box, size: 28),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'ADICIONAR LIVRO',
+                                        style: GoogleFonts.spaceGrotesk(
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 20
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 32),
+                              _buildContainerSection(
+                                'Clássicos',
+                                _buildHorizontalShelf(classics),
+                              ),
+                              const SizedBox(height: 24),
+                              _buildContainerSection(
+                                'Mistério',
+                                _buildHorizontalShelf(mystery),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 48),
-
-                        _buildSectionTitle('Clássicos essenciais', accentColor),
-                        const SizedBox(height: 16),
-                        _buildHorizontalShelf(classicBooks),
-
-                        const SizedBox(height: 40),
-
-                        _buildSectionTitle('Mistério & Policial', accentColor),
-                        const SizedBox(height: 16),
-                        _buildHorizontalShelf(mysteryBooks),
                       ],
                     ),
                   ),
-
                   if (isProcessingScanner)
                     Container(
                       color: Colors.black54,
@@ -323,16 +316,23 @@ class _HomePageState extends State<HomePage> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border.all(color: Colors.black, width: 3),
-                            boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(8, 8))],
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(8, 8),
+                              ),
+                            ],
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const CircularProgressIndicator(color: Colors.black, strokeWidth: 4),
+                              const CircularProgressIndicator(
+                                color: Colors.black,
+                                strokeWidth: 4,
+                              ),
                               const SizedBox(height: 24),
                               Text(
-                                'Buscando metadados no\nGoogle Books...',
-                                textAlign: TextAlign.center,
+                                'Buscando...',
                                 style: GoogleFonts.spaceGrotesk(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
@@ -353,20 +353,31 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, Color backgroundColor) {
+  Widget _buildContainerSection(String title, Widget shelf) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: Colors.white,
         border: Border.all(color: Colors.black, width: 2),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(3, 3))],
       ),
-      child: Text(
-        title.toUpperCase(),
-        style: GoogleFonts.spaceGrotesk(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFE800),
+              border: Border.all(color: Colors.black, width: 2),
+            ),
+            child: Text(
+              title.toUpperCase(),
+              style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w900),
+            ),
+          ),
+          const SizedBox(height: 16),
+          shelf,
+        ],
       ),
     );
   }
@@ -374,10 +385,10 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHorizontalShelf(List<BookModel> books) {
     if (books.isEmpty) {
       return SizedBox(
-        height: 200,
+        height: 150,
         child: Center(
           child: Text(
-            'Nenhum livro cadastrado nesta seção.',
+            'Nenhum livro aqui.',
             style: GoogleFonts.spaceGrotesk(
               fontWeight: FontWeight.w500,
               color: Colors.black54,
@@ -386,7 +397,6 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-
     return SizedBox(
       height: 200,
       child: ListView.builder(
@@ -394,15 +404,12 @@ class _HomePageState extends State<HomePage> {
         itemCount: books.length,
         itemBuilder: (context, index) {
           final book = books[index];
-
           return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BookDetailsPage(book: book),
-                ),
-              );
-            },
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => BookDetailsPage(book: book),
+              ),
+            ),
             child: Container(
               width: 130,
               margin: const EdgeInsets.only(right: 16, bottom: 8),
@@ -410,22 +417,17 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 border: Border.all(color: Colors.black, width: 2),
                 boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(4, 4),
-                    blurRadius: 0,
-                  ),
+                  BoxShadow(color: Colors.black, offset: Offset(3, 3)),
                 ],
               ),
-              child: ClipRRect(
-                child: (book.coverUrl ?? '').isNotEmpty
-                    ? Image.network(
-                  book.coverUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _buildNoCoverFallback(book.title),
-                )
-                    : _buildNoCoverFallback(book.title),
-              ),
+              child: (book.coverUrl ?? '').isNotEmpty
+                  ? Image.network(
+                      book.coverUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) =>
+                          _buildNoCoverFallback(book.title),
+                    )
+                  : _buildNoCoverFallback(book.title),
             ),
           );
         },
@@ -448,6 +450,20 @@ class _HomePageState extends State<HomePage> {
             fontSize: 14,
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _neobrutalistInput(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: Colors.white,
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black, width: 2),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black, width: 4),
       ),
     );
   }
