@@ -64,3 +64,11 @@ class GenerateBookInsightsEvent extends BookEvent {
   List<Object?> get props => [userId, book];
 }
 
+class FetchBookFromScannerEvent extends BookEvent {
+  final String isbn;
+  const FetchBookFromScannerEvent({required this.isbn});
+
+  @override
+  List<Object?> get props => [isbn];
+}
+

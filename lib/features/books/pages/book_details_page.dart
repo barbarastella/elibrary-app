@@ -20,6 +20,9 @@ class BookDetailsPage extends StatelessWidget {
     const Color surfaceColor = Color(0xFFF4F4F0);
     const Color accentColor = Color(0xFFFF5900);
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return BlocConsumer<BookBloc, BookState>(
       listener: (context, state) {
         if (state is BooksError) {
@@ -90,7 +93,12 @@ class BookDetailsPage extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.only(
+                left: 24.0,
+                right: 24.0,
+                top: 24.0,
+                bottom: bottomInset > 0 ? bottomInset + 24.0 : bottomPadding + 40.0
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
