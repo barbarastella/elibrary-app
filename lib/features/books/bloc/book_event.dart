@@ -46,3 +46,21 @@ class DeleteBookRequestedEvent extends BookEvent {
   List<Object?> get props => [userId, bookId];
 }
 
+class BooksStreamUpdatedEvent extends BookEvent {
+  final List<BookModel> books;
+  const BooksStreamUpdatedEvent(this.books);
+
+  @override
+  List<Object?> get props => [books];
+}
+
+class GenerateBookInsightsEvent extends BookEvent {
+  final String userId;
+  final BookModel book;
+
+  const GenerateBookInsightsEvent({required this.userId, required this.book});
+
+  @override
+  List<Object?> get props => [userId, book];
+}
+

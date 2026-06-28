@@ -14,6 +14,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
     on<AddBookRequestedEvent>(_onAddBookRequested);
     on<UpdateBookRequestedEvent>(_onUpdateBookRequested);
     on<DeleteBookRequestedEvent>(_onDeleteBookRequested);
+    on<GenerateBookInsightsEvent>(_onGenerateBookInsights);
   }
 
   Future<void> _onLoadBooksRequested(
@@ -64,4 +65,13 @@ class BookBloc extends Bloc<BookEvent, BookState> {
       emit(BooksError('Erro ao deletar book: $e'));
     }
   }
+
+  Future<void> _onGenerateBookInsights(GenerateBookInsightsEvent event, Emitter<BookState> emit) async {
+    try {
+      emit(BooksLoading());
+      await _bookRepository.generateAndSaveInsights(userId: event.userId, book: event.book);
+    } catch (e) {
+      emit(BooksError('Erro ao conectar com o Gemini: ${e.toString()}'));
+    }
+}
 }

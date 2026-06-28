@@ -64,6 +64,17 @@ class BookModel {
   factory BookModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
 
+    final rawRecommendations = data['geminiRecommendations'];
+    List<String>? parsedRecommendations;
+
+    if (rawRecommendations is String) {parsedRecommendations = rawRecommendations
+          .split('\n')
+          .where((line) => line.trim().isNotEmpty)
+          .toList();
+    } else if (rawRecommendations is List) {
+      parsedRecommendations = List<String>.from(rawRecommendations);
+    }
+
     return BookModel(
       id: doc.id,
       isbn: data['isbn'] ?? '',
@@ -75,9 +86,7 @@ class BookModel {
       status: BookStatus.fromString(data['status'] ?? ''),
       addedViaScanner: data['addedViaScanner'] ?? false,
       geminiSummary: data['geminiSummary'],
-      geminiRecommendations: data['geminiRecommendations'] != null
-          ? List<String>.from(data['geminiRecommendations'])
-          : null,
+      geminiRecommendations: parsedRecommendations,
       addedAt: (data['addedAt'] as Timestamp?)?.toDate(),
     );
   }
